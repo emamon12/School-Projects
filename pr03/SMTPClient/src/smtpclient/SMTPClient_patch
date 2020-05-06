@@ -1,0 +1,128 @@
+4a5,7
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+> import java.time.LocalDateTime;
+6c9,10
+< import java.util.Base64;
+---
+> import javax.net.ssl.SSLSocket;
+> import javax.net.ssl.SSLSocketFactory;
+10c14
+<  * @version 1.0, 3 April 2019
+---
+>  * @version 2.0, 25 April 2019
+14c18,19
+<  * This runs both UDP and TCP Sets up a client program to connect to a server.</p>
+---
+>  * This runs both UDP and TCP Sets up a client program to connect to a
+>  * server.</p>
+20a26,27
+>         System.setProperty("javax.net.ssl.trustStore", "SMTPClientTruststore");
+>         System.setProperty("javax.net.ssl.trustStorePassword", "123456");
+46d52
+< 
+48c54,55
+<                     Socket clientSide = new Socket(serverIpAddress, Integer.parseInt(args[1]));
+---
+>                     SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+>                     SSLSocket clientSide = (SSLSocket) factory.createSocket(serverIpAddress, Integer.parseInt(args[1]));
+52d58
+< 
+59a66
+>                         String username = null;
+73c80,92
+<                                     firstLogin = false;
+---
+>                                     username = sendToServer;
+>                                     File userFile = new File("./db/" + sendToServer);
+>                                     if (!userFile.exists()) {
+>                                         userFile.mkdir();
+> 
+>                                         String salt = Integer.toString(LocalDateTime.now().getMinute());
+> 
+>                                         try (BufferedWriter toFile = new BufferedWriter(new FileWriter("./db/" + username + "/.user_cache.txt"))) {
+>                                             toFile.write(salt);
+>                                             toFile.newLine();
+>                                         }
+>                                     }
+> 
+79a99
+>                             username = sendToServer;
+82d101
+<                         sendToServer = (Base64.getEncoder().encodeToString(sendToServer.getBytes()));
+89,90c108,132
+<                         sendToServer = (Base64.getEncoder().encodeToString(sendToServer.getBytes()));
+<                         outputToServer.writeUTF(sendToServer);
+---
+> 
+>                         String ss;
+> 
+>                         try (BufferedReader fileIn = new BufferedReader(new FileReader("./db/" + username + "/.user_cache.txt"))) {
+>                             ss = fileIn.readLine();
+>                         }
+> 
+>                         byte[] salt = ss.getBytes();
+>                         //using SHA-256 as encoding rather than Base64
+>                         String passwordHashed = null;
+>                         try {
+>                             MessageDigest digestedMessage = MessageDigest.getInstance("SHA-256");
+>                             digestedMessage.update(salt);
+>                             byte[] mdBytes = digestedMessage.digest(sendToServer.getBytes());
+>                             StringBuilder passwordStringBuilder = new StringBuilder();
+>                             for (int i = 0; i < mdBytes.length; i++) {
+>                                 passwordStringBuilder.append(Integer.toString((mdBytes[i] & 0xff) + 0x100, 16).substring(1));
+>                             }
+>                             passwordHashed = passwordStringBuilder.toString();
+>                         } catch (NoSuchAlgorithmException e) {
+>                             System.out.println("No Hashing Algorithm Found");
+>                             e.printStackTrace();
+>                         }
+> 
+>                         outputToServer.writeUTF(passwordHashed);
+133c175
+<             
+---
+> 
+178,179d219
+<                 sendPacket = new DatagramPacket(sendData, sendData.length, ip, Integer.parseInt(args[1]));
+<                 cSocket.send(sendPacket);
+180a221,251
+>                 String ss;
+> 
+>                 File ussFile = new File("./db/" + username);
+> 
+>                 if (ussFile.exists()) {
+>                     try (BufferedReader fileIn = new BufferedReader(new FileReader("./db/" + username + "/.user_cache.txt"))) {
+>                         ss = fileIn.readLine();
+>                     }
+> 
+>                     byte[] salt = ss.getBytes();
+>                     //using SHA-256 as encoding rather than Base64  
+>                     String generatedPassword = null;
+>                     try {
+>                         MessageDigest md = MessageDigest.getInstance("SHA-256");
+>                         md.update(salt);
+>                         byte[] bytes = md.digest(sendData);
+>                         StringBuilder sb = new StringBuilder();
+>                         for (int i = 0; i < bytes.length; i++) {
+>                             sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+>                         }
+>                         generatedPassword = sb.toString();
+>                     } catch (NoSuchAlgorithmException e) {
+>                         e.printStackTrace();
+>                     }
+> 
+>                     sendPacket = new DatagramPacket(generatedPassword.getBytes(), generatedPassword.getBytes().length, ip, Integer.parseInt(args[1]));
+>                 } else {
+>                     sendPacket = new DatagramPacket(sendData, sendData.length, ip, Integer.parseInt(args[1]));
+>                 }
+> 
+>                 cSocket.send(sendPacket);
+188c259
+<                 if (!checkAuth.substring(0, 3).equals("250")) {
+---
+>                 if (checkAuth.substring(0, 3).equals("200")) {
+234,236d304
+<                 sendData = "auth".getBytes();
+<                 sendPacket = new DatagramPacket(sendData, sendData.length, ip, Integer.parseInt(args[1]));
+<                 cSocket.send(sendPacket);

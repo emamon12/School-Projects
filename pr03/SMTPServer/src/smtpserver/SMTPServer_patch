@@ -1,0 +1,107 @@
+4a5,6
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+11a14
+> import javax.net.ssl.SSLServerSocketFactory;
+15c18
+<  * @version 1.0, 3 April 2019
+---
+>  * @version 2.0, 25 April 2019
+25a29,30
+>         System.setProperty("javax.net.ssl.keyStore", "SMTPServerKeystore");
+>         System.setProperty("javax.net.ssl.keyStorePassword", "123456");
+27c32,37
+<         ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]));
+---
+>         InetSocketAddress address = new InetSocketAddress(Integer.parseInt(args[0]));
+> 
+>         ServerSocket serverSocket = new ServerSocket();
+> 
+>         SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+>         ServerSocket ss = ssf.createServerSocket(Integer.parseInt(args[0]));
+70a81,84
+>                     receivePacket = new DatagramPacket(receiveData, receiveData.length);
+>                     serverSocket.receive(receivePacket);
+>                     System.out.println(stringify(receiveData));
+> 
+72,74d85
+<                         receivePacket = new DatagramPacket(receiveData, receiveData.length);
+<                         serverSocket.receive(receivePacket);
+<                         System.out.println(stringify(receiveData));
+226d236
+< 
+228,229c238,239
+<                 // serverSocket client to receive incoming client requests 
+<                 client = serverSocket.accept();
+---
+>                 // serverSocket client to receive incoming client requests
+>                 client = ss.accept();
+232d241
+< 
+292a302,304
+>         System.setProperty("javax.net.ssl.keyStore", "cacerts");
+>         System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
+> 
+511,513c523
+<                     byte[] decoded = Base64.getDecoder().decode(received);
+<                     password = (new String(decoded, "UTF-8"));
+<                     System.out.println(password);
+---
+>                     password = received;
+517d526
+<                     System.out.println(passwordCheck);
+554,555c563
+<                     byte[] decoded = Base64.getDecoder().decode(received);
+<                     File userFile = new File("./db/" + (new String(decoded, "UTF-8")));
+---
+>                     File userFile = new File("./db/" + received);
+558,559c566
+<                         decoded = Base64.getDecoder().decode(received);
+<                         username = (new String(decoded, "UTF-8"));
+---
+>                         username = received;
+563d569
+<                         passEncoded = (Base64.getEncoder().encodeToString(passEncoded.getBytes()));
+565c571
+<                         toClient = "330 " + passEncoded;
+---
+>                         toClient = "330 your password is " + passEncoded;
+575,577c581,603
+<                         randPass = randPass + 447;
+<                         passEncoded = (Integer.toString(randPass));
+<                         passEncoded = (Base64.getEncoder().encodeToString(passEncoded.getBytes()));
+---
+>                         String randPassString = Integer.toString(randPass);
+> 
+>                         byte[] passwordSalt = Integer.toString(LocalDateTime.now().getMinute()).getBytes();
+>                         //using SHA-256 as encoding rather than Base64
+>                         String passwordHashed = null;
+> 
+>                         try {
+>                             MessageDigest digestedMessage = MessageDigest.getInstance("SHA-256");
+>                             digestedMessage.update(passwordSalt);
+> 
+>                             byte[] mdBytes = digestedMessage.digest(randPassString.getBytes());
+> 
+>                             StringBuilder passwordStringBuilder = new StringBuilder();
+> 
+>                             for (int i = 0; i < mdBytes.length; i++) {
+>                                 passwordStringBuilder.append(Integer.toString((mdBytes[i] & 0xff) + 0x100, 16).substring(1));
+>                             }
+> 
+>                             passwordHashed = passwordStringBuilder.toString();
+>                         } catch (NoSuchAlgorithmException e) {
+>                             System.out.println("No Hashing Algorithm Found");
+>                             e.printStackTrace();
+>                         }
+579,580c605,606
+<                         try (BufferedWriter toFile = new BufferedWriter(new FileWriter("./db/" + (new String(decoded, "UTF-8")) + "/.user_pass.txt"))) {
+<                             toFile.write(passEncoded);
+---
+>                         try (BufferedWriter toFile = new BufferedWriter(new FileWriter("./db/" + username + "/.user_pass.txt"))) {
+>                             toFile.write(passwordHashed);
+589,590c615
+<                     decoded = Base64.getDecoder().decode(received);
+<                     username = (new String(decoded, "UTF-8"));
+---
+>                     username = received;
