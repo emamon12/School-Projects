@@ -1,0 +1,89 @@
+---
+title: 'Laboratory Exercise Week 12'
+author: "Your Name and Section, 10 pts"
+date: "Todays Date"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Directions*: 
+
+* Write your R code inside the code chunks after each question.
+* Write your answer comments after the `#` sign.
+* To generate the word document output, click the button `Knit` and wait for the word document to appear.
+* RStudio will prompt you (only once) to install the `knitr` package.
+* Submit your completed laboratory exercise using Blackboard's Turnitin feature. Your Turnitin upload link is found on your Blackboard Course shell under the Laboratory folder.
+
+***
+
+For this exercise, you will need to use the packages `mosaic` and `dplyr` to find numerical and graphical summaries.
+
+
+```{r warning=FALSE, message=FALSE}
+# install packages if necessary
+if (!require(mosaic)) install.packages(`mosaic`)
+if (!require(dplyr)) install.packages(`dplyr`)
+# load the package in R
+library(mosaic) # load the package mosaic to use its functions
+library(dplyr) # load the package dplyr to use data management functions
+```
+
+
+1. Data from the US Federal Reserve Board (2002) on the percentage of disposable personal income required to meet consumer load payments and mortgage payments for selected years are found in the data below
+
+```{r}
+debt <- read.csv("https://www.siue.edu/~jpailde/debt.csv")
+debt
+```
+
+  i) Compute the mean and standard deviation of the two variables in the data set. Describe each variable using these sample characteristics.  
+  ii) What is the value of the correlation coefficient for this data set?  
+  iii) Construct a scatterplot for this data set.      
+  iv) Based on parts (ii) and (iii), is it reasonable to conclude in this case that there is no strong relationship between the variables (linear or otherwise)?
+
+
+
+### Code chunk
+```{r} 
+# start your code
+debt_mean <- tibble("Consumer Debt" = mean(debt$Consumer_Debt), "Household Debt" = mean(debt$Household_Debt))#widely varying means between the two samples
+debt_sd <- tibble("Consumer Debt" = sd(debt$Consumer_Debt), "Household Debt" = sd(debt$Consumer_Debt))#relatively similar standard deviations
+plot(debt$Household_Debt, ylab="Household Debt", xlab="Year", main="Percentage of Personal Income Required For")
+plot(debt$Consumer_Debt, ylab="Consumer Debt", xlab="Year", main="Percentage of Personal Income Required For")
+plot(c(debt$Household_Debt,debt$Consumer_Debt), ylab="Household Debt & Consumer Debt", main="Household Debt vs. Consumer Debt")
+#based on data collected, there is no strong relationship between the variables
+# last R code line
+```
+
+
+2. The data below contains sale price, size, and land-to-building ratio for 10 large industrial properties
+
+```{r}
+saleprice <- read.csv("https://www.siue.edu/~jpailde/saleprice.csv")
+saleprice
+```
+
+  i) Construct scatterpots for `sale price versus size` and `sale price versus land-to-building ratio`. Be sure to fit regression lines on the scatterplots.  
+  ii) Calculate and interpret the value of the correlation coefficients on `sale price versus size` and `sale price versus land-to-building ratio`.  
+  iii) Use the `lm` function to estimated the equations of each fitted line for for `sale price versus size` and `sale price versus land-to-building ratio`. Give an interpretation of the slopes for each line. 
+  iv) Which model would you use to explain the behavior of sale price? Why? 
+
+### Code chunk
+```{r} 
+# start your code
+plot(price...M.~Size..k.sq.ft., data=saleprice, xlab="Size(thousand square feet)", ylab="price(per million)", main="Size vs. Price")
+abline(lm(price...M.~Size..k.sq.ft., data=saleprice))
+plot(price...M.~Ratio, data=saleprice, xlab="Ratio", ylab="price(per million)", main="Ratio vs Price", pch=16, cex=1.2, col="Blue")
+abline(lm(price...M.~Ratio, data=saleprice))
+cor(saleprice$price...M.,saleprice$Size..k.sq.ft.)
+cor(saleprice$price...M.,saleprice$Ratio)
+lm(price...M.~Size..k.sq.ft., data=saleprice) #starts at 1.328142 and slopes upward at a rate of 0.005253
+lm(price...M.~Ratio, data=saleprice)#starts at 13.2787 and slopes downward at a rate of -0.6393
+#the price vs. size model best represents the behavior of the sale price since it is much better correlated compared to the other model
+# last R code line
+```
+
+

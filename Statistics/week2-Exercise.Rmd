@@ -1,0 +1,118 @@
+---
+title: 'Laboratory Exercise Week 2'
+author: "Your Name and Section"
+date: "Todays Date"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Directions*: 
+
+* Write your R code inside the code chunks after each question.
+* Write your answer comments after the `#` sign.
+* To generate the word document output, click the button `Knit` and wait for the word document to appear.
+* RStudio will prompt you (only once) to install the `knitr` package.
+* Submit your completed laboratory exercise using Blackboard's Turnitin feature. Your Turnitin upload link is found on your Blackboard Course shell under the Laboratory folder.
+
+***
+
+1. You will work with a matrix whose entries are all prime numbers below 30.  
+      i)  Create this matrix using the function `matrix()` with five rows. Save the matrix as `P`.  
+      ii) Extract the second and third row out of `P`.  
+      iii) Extract the entry in the fourth row and first column of `P`.  
+      iv) Generate the transpose of the matrix using the function `t()`. What is the new dimension of this matrix.  
+
+### Code chunk
+```{r}
+# Insert your code for this question after this line
+
+n <- 30
+
+x = seq(2, n)
+prime_nums = c()
+
+for (i in seq(2, n)) {
+	if (any(x == i)) {
+		prime_nums = c(prime_nums, i)
+		x = c(x[(x %% i) != 0], i)
+	}		
+}
+
+P <- matrix(c(x), nrow = 5, ncol = (length(x)/5))
+c(P[2,],P[3,])
+P[4][1]
+t(P) #the transpose of P is 2x5
+
+
+
+```
+
+2. Create and manipulate a data frame.
+      i) Create a `data.frame` named `my.trees` that has the following columns:  
+          - `Girth = c(8.3, 8.6, 8.8, 10.5, 10.7, 10.8, 11.0)`  
+          - `Height = c(70, 65, 63, 72, 81, 83, 66)`  
+          - `Volume = c(10.3, 10.3, 10.2, 16.4, 18.8, 19.7, 15.6)`  
+      ii) Extract the fifth observational unit.  
+      iii) Extract the `Girth` column referring to it by name.  
+      iv) Print out a data frame of all the observations except for the last observation.  
+
+
+### Code chunk
+```{r}
+# Insert your code for this question after this line
+
+my.trees <- data.frame(Girth = c(8.3, 8.6, 8.8, 10.5, 10.7, 10.8, 11.0), Height = c(70, 65, 63, 72, 81, 83, 66), Volume = c(10.3, 10.3, 10.2, 16.4, 18.8, 19.7, 15.6))
+my.trees[5,]
+my.trees$Girth
+head(my.trees, length(my.trees)-1)
+
+# last R code line
+```
+
+3. The popular `iris` data set gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. The species are Iris setosa, versicolor, and virginica. The `iris` data set is included with every R installation.  
+      i) Check the structure of the`iris` data.   
+      ii) How many variables and observations are in the data set?   
+      iii) Which variables are `numeric` type?  
+      iv) Display the first 4 rows of the data.  
+
+
+			
+### Code chunk
+```{r} 
+# Insert your code for this question after this line
+
+str(iris)	#there are 150 objects and 5 variables
+			#sepal length, sepal width, petal length, and petal width are all numberic
+			
+n <- 4
+head(iris, n)
+
+# last R code line
+```
+
+
+
+  
+4.  You will work with the passenger Titanic data found on this [link](<https://goo.gl/NHb1Pg>).   
+      i) Read this data directly from the web using its URL.  
+      ii) Read this data by saving it first into your working directory. Check your working directory using `getwd()` or change its location using the steps covered in the lesson.  
+      iii) How many passengers and what variables are in the data set?   
+      iv) Display the first 5 rows of the data.  
+
+### Code chunk
+```{r}
+# Insert your code for this question after this line
+
+titanic <- read.csv("https://goo.gl/NHb1Pg", head = TRUE)
+getwd()
+setwd("C:/Users/User/OneDrive/Documents/R/inputs")
+titanic <- titanic.csv #there are 1316 passangers denoted by how many objects there are. There are 5 variables
+
+n <- 5
+head(titanic, n)
+
+```
+

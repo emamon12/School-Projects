@@ -1,0 +1,111 @@
+---
+title: 'Laboratory Exercise Week 3'
+author: "Your Name and Section, 10 pts"
+date: "Todays Date"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Directions*: 
+
+* Write your R code inside the code chunks after each question.
+* Write your answer comments after the `#` sign.
+* To generate the word document output, click the button `Knit` and wait for the word document to appear.
+* RStudio will prompt you (only once) to install the `knitr` package.
+* Submit your completed laboratory exercise using Blackboard's Turnitin feature. Your Turnitin upload link is found on your Blackboard Course shell under the Laboratory folder.
+
+***
+
+For this exercise, you will need to use the package `mosaic` to find numerical and graphical summaries.
+
+
+```{r warning=FALSE, message=FALSE}
+# install mosaic package if necessary
+if (!require(mosaic)) install.packages(`mosaic`)
+# load the package in R
+library(mosaic) # load the package mosaic to use its functions
+```
+
+
+1. Recall the `iris` data set from last week's exercise. The `iris` data set is already pre-loaded in R - look at the help file using `?iris` for more information on this data set.   
+      i) Check the structure of the data using the function `str(iris)`.   
+      ii) Find the average (or mean) measurement of the variable `Sepal.Length`. Do this in two ways as described in the lesson.   
+      iii) Find the average `Sepal.Length` for the different flower `Species`. Give a brief comment on the averages.  
+      iv) Repeat (ii) and (iii) but use the summary standard deviation `sd()` which describes the spread of the variable.   
+      v) Describe the shape of the variable `Sepal.Length` by creating a histogram using `histogram()`.  Write your description outside the code chunk.  
+      vi) Compare the `Sepal.Length` of the three species of flowers by creating a side-by-side boxplot using `bwplot()`. Write your description outside the code chunk.
+      
+
+### Code chunk
+```{r} 
+# Insert your code for this question after this line	
+str(iris)
+mean(~Sepal.Length, data = iris)
+mean(iris$Sepal.Length)
+mean(Sepal.Length~Species, data = iris) #Setosa has the lowest average sepal length, followed by versicolor, then virginica.
+sd(~Sepal.Length, data = iris)
+sd(iris$Sepal.Length)
+histogram(iris$Sepal.Length) #looks fairly normaly distributed with a slight skewness to the left
+bwplot(Species~Sepal.Length, data = iris) # fairly differing sepal lengths within the different species
+
+
+# last R code line
+```
+
+
+2. The data set `MLB-TeamBatting-S16.csv` contains MLB Team Batting Data for selected variables. Load the data set from the given url using the code below. This data set was obtained from [Baseball Reference](https://www.baseball-reference.com/leagues/MLB/2016-standard-batting.shtml).
+    * Tm - Team   
+    * Lg - League: American League (AL), National League (NL)  
+    * BatAge - Batters’ average age  
+    * RPG - Runs Scored Per Game  
+    * G - Games Played or Pitched  
+    * AB - At Bats  
+    * R - Runs Scored/Allowed  
+    * H - Hits/Hits Allowed  
+    * HR - Home Runs Hit/Allowed  
+    * RBI - Runs Batted In  
+    * SO - Strikeouts  
+    * BA - Hits/At Bats  
+    * SH - Sacrifice Hits (Sacrifice Bunts)  
+    * SF - Sacrifice Flies  
+
+    i) Find the average measurement for the following variables `BatAge`, `RPG`, `R`, `H` and `BA`.   
+    ii) Create dotplot's or histogram's for each variable in (i).     
+    iii) Using your own words, describe the distribution of each variable in (i).   Write your answer outside the code chunk.     
+    iv) Find the average and the standard deviation of the variables `RPG`, `H` and `BA` for each league.     
+    v) Describe any differences or similarities between the leagues. Write your comment outside the code chunk.
+      
+
+
+### Code chunk
+```{r} 
+# load the data set
+mlb16.data <- read.csv("https://raw.githubusercontent.com/jpailden/rstatlab/master/data/MLB-TeamBatting-S16.csv")
+str(mlb16.data) # check structure
+head(mlb16.data)  # show first six rows
+
+mean(mlb16.data$BatAge)
+mean(mlb16.data$RPG)
+mean(mlb16.data$R)
+mean(mlb16.data$H)
+mean(mlb16.data$BA)	
+
+histogram(~BatAge, data = mlb16.data) #normally distributed with a slight skewness to the left
+histogram(~RPG, data = mlb16.data) #almost perfect normal distribution	
+histogram(~R, data = mlb16.data) #almost perfect normal destribution within the 720 range with a slight skewness to the left
+histogram(~H, data = mlb16.data) #large skewness to the left
+histogram(~BA, data = mlb16.data) #a uniform normal distribution with a slight skewness to the left and a low mean
+
+favstats(RPG~Lg, data = mlb16.data) #AL has a higher mean compared to NL and the min and max with a lower standard deviation. This would indicate that the players are overall scoring more runs per game and with higher consistency
+favstats(H~Lg, data = mlb16.data) #the teams in AL have allowed more hits compared to NL, which is evident by a higher mean, min, and max. The standard deviation is also lower compared to NL. 
+favstats(BA~Lg, data = mlb16.data) #Both leagues have relatively similar battering averages in terms of mean and standard deviation
+#with a higher number of hits allowed and with the same number of hits at bat, it makes sense that AL has a higher amount of runs per game compared to NL.
+# last R code line
+
+```
+
+
+
